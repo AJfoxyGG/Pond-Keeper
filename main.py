@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 
 class TodoApp:
     def __init__(self, root):
@@ -24,6 +23,21 @@ class TodoApp:
             fg="#5A8F2C"
         ).pack(side="right", padx=20)
 
+        input_frame = tk.Frame(root)
+        input_frame.pack(fill="x", padx=15, pady=10)
+
+        self.todo_entry = tk.Entry(input_frame, font=("Arial", 16))
+        self.todo_entry.pack(side="left", fill="x", expand=True)
+        self.todo_entry.bind("<Return>", lambda _event: self.add_todo())
+
+        tk.Button(
+            input_frame,
+            text="+",
+            width=4,
+            font=("Arial", 16, "bold"),
+            command=self.add_todo
+        ).pack(side="left", padx=(10, 0))
+
         self.todo_frame = tk.Frame(root)
         self.todo_frame.pack(fill="both", expand=True)
 
@@ -37,15 +51,30 @@ class TodoApp:
         nav = tk.Frame(root)
         nav.pack(fill="x", pady=15)
 
-        tk.Button(nav, text="🌊", width=8).pack(side="left", padx=10)
-        tk.Button(nav, text="✓", width=8).pack(side="left", padx=10)
-        tk.Button(nav, text="🌿", width=8).pack(side="left", padx=10)
+        tk.Button(nav, text="🌊 Teich", width=8).pack(side="left", padx=10)
+        tk.Button(nav, text="✓ To-Do", width=8).pack(side="left", padx=10)
+        tk.Button(nav, text="🌿 Pflanzen", width=8).pack(side="left", padx=10)
+
+    def add_todo(self):
+        text = self.todo_entry.get().strip()
+
+        if text:
+            self.todos.append({
+                "title": text,
+                "done": False
+            })
+
+            self.todo_entry.delete(0, tk.END)
+            self.draw_todos()
 
     def draw_todos(self):
         for widget in self.todo_frame.winfo_children():
             widget.destroy()
 
         for todo in self.todos:
+            if todo["done"]:
+                continue
+
             row = tk.Frame(self.todo_frame)
             row.pack(fill="x", pady=10, padx=15)
 
@@ -54,8 +83,11 @@ class TodoApp:
             cb = tk.Checkbutton(
                 row,
                 variable=var,
+                font=("Arial", 28),
+                width=2,
                 command=lambda t=todo, v=var: self.toggle(t, v)
             )
+
             cb.pack(side="left")
 
             card = tk.Label(
@@ -70,6 +102,7 @@ class TodoApp:
 
     def toggle(self, todo, var):
         todo["done"] = var.get()
+        self.draw_todos()
 
 root = tk.Tk()
 app = TodoApp(root)
